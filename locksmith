@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import argparse
+
+__selfpath__ = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(__selfpath__ + "/modules")
+
+import locksmith.config
+import locksmith.util
+
+from locksmith.log import set_log_level, logger
+from locksmith.version import __version__, __maintainer__
+
+# This block ensures that ^C interrupts are handled quietly.
+try:
+    import signal
+
+    def exithandler(signum,frame):
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        sys.exit(1)
+
+    signal.signal(signal.SIGINT, exithandler)
+    signal.signal(signal.SIGTERM, exithandler)
+    if hasattr(signal, 'SIGPIPE'):
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
+except KeyboardInterrupt:
+        sys.exit(1)
+
+def main(argv):
+#    defaults = {}
+#    if args.config:
+#        try:
+#            rawconf = StringIO.StringIO('[root]\n' +
+#                open(os.path.expanduser(args.config), 'r').read())
+#            config = ConfigParser.SafeConfigParser()
+#            config.readfp(rawconf)
+#            defaults = dict(config.items("root"))
+#        except Exception,e:
+#            pass
+#
+    parser = argparse.ArgumentParser(
+        description = "Simple lock client")
+    parser.add_argument("-t", "--traceback", action="store_true",
+        default=False, help="print traceback on exceptions [default: False]")
+    parser.add_argument("-q", "--quiet", action="store_true",
+        default=False, help="quiet output [default: False]")
+    parser.add_argument("-v", "--verbose", action="store_true",
+        default=False, help="verbose output [default: False]")
+    parser.add_argument("--disable-colors", action="store_true", dest="color_disable",
+        default=(os.name == 'nt' or not sys.stdout.isatty()),
+        help="disable colors in the output of commands"
+    )
+    parser.add_argument("-c", "--config", metavar="FILE", dest="config",
+        default="~/.locksmithrc", help="configuration file")
+    parser.add_argument("command",
+        default="help", help="Command to run"
+    )
+
+    args, subargs = parser.parse_known_args(argv)
+
+    # set log level
+    if args.quiet:
+        set_log_level('WARNING')
+    elif args.verbose:
+        set_log_level('DEBUG')
+
+    cmd = args.command
+
+    conf = locksmith.config.LocksmithConf(os.path.expanduser(args.config))
+
+    try:
+        locksmith.util.exec_command(cmd, conf, subargs)
+    except locksmith.util.UnknownCommandError:
+        logger.error("locksmith: Command %s not found" % cmd)
+    except SystemExit:
+        sys.exit()
+    except:
+        import traceback
+        if args.traceback:
+            traceback.print_exc()
+        else:
+            formatted_lines = traceback.format_exc().splitlines()
+            logger.error(formatted_lines[-1])
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
