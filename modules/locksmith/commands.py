@@ -155,7 +155,7 @@ def cmd_execute(conf, argv):
             return
 
         raise CommandError("Couldn't acquire lock %s: %s" % (args.lock, e))
-    except Exception,e:
+    except (Exception, SystemExit):
         lrpc.unlock(args.lock)
         raise
 
