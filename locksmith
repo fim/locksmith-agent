@@ -31,17 +31,7 @@ except KeyboardInterrupt:
         sys.exit(1)
 
 def main(argv):
-#    defaults = {}
-#    if args.config:
-#        try:
-#            rawconf = StringIO.StringIO('[root]\n' +
-#                open(os.path.expanduser(args.config), 'r').read())
-#            config = ConfigParser.SafeConfigParser()
-#            config.readfp(rawconf)
-#            defaults = dict(config.items("root"))
-#        except Exception,e:
-#            pass
-#
+
     parser = argparse.ArgumentParser(
         description = "Simple lock client")
     parser.add_argument("-t", "--traceback", action="store_true",

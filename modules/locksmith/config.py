@@ -182,5 +182,5 @@ LOCKSMITH_DEFAULTS = {
 class LocksmithConf(ConfigParser):
 
     def _load_defaults(self):
-        for k,v in DABUS_DEFAULTS.iteritems():
+        for k,v in LOCKSMITH_DEFAULTS.iteritems():
             self[k] = v

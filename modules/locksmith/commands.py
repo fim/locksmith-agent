@@ -24,7 +24,10 @@ def cmd_list(conf, argv):
     args = parser.parse_args(argv)
 
     try:
-        lrpc = LockRPC(**conf)
+        try:
+            lrpc = LockRPC(**conf)
+        except TypeError:
+            raise CommandError("Config file is missing or is invalid. Try re-registering your client")
         for l in lrpc.list():
             print l['stub']
     except ListException,e:
@@ -49,6 +52,8 @@ def cmd_lock(conf, argv):
     try:
         lrpc = LockRPC(**conf)
         lrpc.lock(args.lock)
+    except TypeError:
+        raise CommandError("Config file is missing or is invalid. Try re-registering your client")
     except LockException,e:
         if args.silent:
             return
@@ -73,6 +78,8 @@ def cmd_unlock(conf, argv):
     try:
         lrpc = LockRPC(**conf)
         lrpc.unlock(args.lock)
+    except TypeError:
+        raise CommandError("Config file is missing or is invalid. Try re-registering your client")
     except UnlockException,e:
         if args.silent:
             return
@@ -102,6 +109,8 @@ def cmd_register(conf, argv):
     try:
         lrpc = LockRPC(server=args.server)
         u,p = lrpc.register()
+    except TypeError:
+        raise CommandError("Config file is missing or is invalid. Try re-registering your client")
     except RegisterException,e:
         raise CommandError("Couldn't register with server: %s" % e)
 
