@@ -47,8 +47,9 @@ class LockRPC(object):
         self.password = r.json()['password']
         return (self.username, self.password)
 
-    def lock(self, lock):
-        r = self.call("locksmith.lock", self.username, self.password, lock)
+    def lock(self, lock, exclusive = False):
+        r = self.call("locksmith.lock", self.username, self.password, lock,
+                exclusive)
         if r.status_code == 200:
             try:
                 rc = json.loads(r.json()['result'])

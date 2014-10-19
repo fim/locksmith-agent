@@ -45,13 +45,15 @@ def cmd_lock(conf, argv):
         description = description)
     parser.add_argument("-s", "--silent", action="store_true",
             default=False, help="Fail silently on error",)
+    parser.add_argument("-x", "--exclusive", action="store_true",
+            default=False, help="Acquire exclusive lock",)
     parser.add_argument("lock", help="lock name",)
     args = parser.parse_args(argv)
 
 
     try:
         lrpc = LockRPC(**conf)
-        lrpc.lock(args.lock)
+        lrpc.lock(args.lock, args.exclusive)
     except TypeError:
         raise CommandError("Config file is missing or is invalid. Try re-registering your client")
     except LockException,e:
@@ -137,12 +139,14 @@ def cmd_execute(conf, argv):
             default=False, help="Fail silently on error",)
     parser.add_argument("-l", "--lock", dest="lock",
             required=True, help="lock name",)
+    parser.add_argument("-x", "--exclusive", action="store_true",
+            default=False, help="Acquire exclusive lock",)
     parser.add_argument("command", help="command to execute",)
     args = parser.parse_args(argv)
 
     try:
         lrpc = LockRPC(**conf)
-        lrpc.lock(args.lock)
+        lrpc.lock(args.lock, exclusive=args.exclusive)
         from subprocess import call
         call(args.command.split(" "))
         lrpc.unlock(args.lock)
