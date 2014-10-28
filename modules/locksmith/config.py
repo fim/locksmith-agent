@@ -15,7 +15,8 @@ class ConfigParser(object):
             self.parse()
         else:
             self._load_defaults()
-            self.export_file(self.filename)
+            # Don't save by default
+            #self.export_file(self.filename)
 
     def __getitem__(self, key):
         """
