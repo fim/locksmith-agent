@@ -65,21 +65,13 @@ class ConfigParser(object):
         return key
 
     def _normalize_val(self, val):
-        if val == "True":
-            return True
-        elif val == "False":
-            return False
-
-        else:
-            if self.multiple_values and ' ' in val:
+        if self.multiple_values:
+            if ' ' in val:
                 return val.split(' ')
 
-            return val
+        return val
 
     def _denormalize_val(self, val):
-        if isinstance(val, bool):
-            return str(val)
-
         if self.multiple_values:
             if not isinstance(val, basestring):
                 return ' '.join(val)
