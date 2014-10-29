@@ -30,3 +30,12 @@ def exec_command(command, *args, **kwargs):
     except KeyError:
         raise UnknownCommandError
     cmd_fn(*args,**kwargs)
+
+def to_bool(val):
+    """
+    Return True/False based on string
+    """
+    if (isinstance(val, basestring) and bool(val)):
+        return not val in ('False', 'false', '0', '0.0')
+
+    return bool(val)

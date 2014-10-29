@@ -1,6 +1,7 @@
 import json
 import requests
 from urlparse import urljoin
+from locksmith.util import to_bool
 
 class RegisterException(Exception):
     pass
@@ -24,7 +25,7 @@ class LockRPC(object):
         self.register_url = register_url
         self.username = username
         self.password = password
-        self.verify = https_verify
+        self.verify = to_bool(https_verify)
 
     def call(self, request, *data):
         payload = {
