@@ -99,6 +99,8 @@ def cmd_register(conf, argv):
         usage=usage,
         description = "Automatically register with the lock server and " \
         "initialize the config file")
+    parser.add_argument("-k", "--insecure", action="store_true",
+            default=False, help="Do not verify server certificate",)
     parser.add_argument("server", help="server url for RPC service",)
     args = parser.parse_args(argv)
 
@@ -109,7 +111,7 @@ def cmd_register(conf, argv):
         raw_input("Config file already exists. If you want to abort press ^C otherwise press enter.")
 
     try:
-        lrpc = LockRPC(server=args.server)
+        lrpc = LockRPC(server=args.server, https_verify=(not args.insecure))
         u,p = lrpc.register()
     except TypeError:
         raise CommandError("Config file is missing or is invalid. Try re-registering your client")
@@ -120,6 +122,7 @@ def cmd_register(conf, argv):
         conf['username'] = u
         conf['password'] = p
         conf['server'] = args.server
+        if args.insecure: conf['https_verify'] = 'False'
         conf.save()
     except Exception,e:
         logger.error("Couldn't config %s: %s" % (conf.filename, e))

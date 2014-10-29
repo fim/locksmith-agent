@@ -1,5 +1,6 @@
 import json
 import requests
+from urlparse import urljoin
 
 class RegisterException(Exception):
     pass
@@ -13,18 +14,17 @@ class UnlockException(Exception):
 class ListException(Exception):
     pass
 
-
-
 class LockRPC(object):
     headers = {'content-type': 'application/json'}
 
     def __init__(self, server, base_url="json/", register_url="register/",
-            username=None, password=None):
+            username=None, password=None, https_verify=False):
         self.server = server
         self.base_url = base_url
         self.register_url = register_url
         self.username = username
         self.password = password
+        self.verify = https_verify
 
     def call(self, request, *data):
         payload = {
@@ -33,13 +33,15 @@ class LockRPC(object):
             "jsonrpc": "2.0",
             "id": 0,
         }
-        r = requests.post("%s/%s" % (self.server, self.base_url),
+        r = requests.post(urljoin(self.server, self.base_url),
             data=json.dumps(payload),
-            headers=self.headers)
+            headers=self.headers,
+            verify=self.verify)
         return r
 
     def register(self):
-        r = requests.get('%s/%s' % (self.server, self.register_url))
+        r = requests.get(urljoin(self.server, self.register_url),
+                verify=self.verify)
         if r.status_code == 400:
             raise RegisterException("Machine already registered. Please delete old account first and then retry.")
 
