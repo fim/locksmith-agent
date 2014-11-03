@@ -3,6 +3,8 @@ import requests
 from urlparse import urljoin
 from locksmith.util import to_bool
 
+
+
 class RegisterException(Exception):
     pass
 
@@ -26,6 +28,11 @@ class LockRPC(object):
         self.username = username
         self.password = password
         self.verify = to_bool(https_verify)
+
+        if not self.verify:
+            # Disable requests warnings for self signed SSL certs
+            # if https_verify is disabled
+            requests.packages.urllib3.disable_warnings()
 
     def call(self, request, *data):
         payload = {
